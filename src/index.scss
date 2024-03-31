@@ -1,0 +1,59 @@
+.box-control {
+  // position: fixed;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+  padding: 10px;
+  z-index: 1;
+  background: #fff;
+  // height: 120px;
+}
+
+.box-view {
+  height: 100%;
+  overflow-y: scroll;
+  padding: 10px;
+}
+
+.box-input {
+  display: flex;
+  width: 100%;
+  input {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    font-size: 20px !important;
+    font-weight: 500 !important;
+    color: #000000 !important;
+  }
+  button {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    flex-shrink: 0;
+    width: 32%;
+    font-size: 18px !important;
+  }
+}
+
+.camera-layout {
+  margin-left: auto;
+  margin-right: auto;
+  // padding: 10px 0px 0px 0px !important;
+  padding: 0 !important;
+  height: calc(100vh - 70px);
+  display: flex;
+  flex-direction: column;
+}
+
+.main-layout {
+  padding: 15px;
+  background-color: #fff;
+}
+
+.container-item {
+  border-radius: 4px;
+  background-color: #f1f1f1;
+}
+
+.fa-cctv:before {
+  content: "\f8ac"
+}

@@ -1,0 +1,8 @@
+.date-picker-input {
+  border: 1px solid #cecece;
+  border-radius: 3px;
+  padding: 5px 10px;
+}
+.datepicker-modal .datepicker {
+  z-index: 1111 !important;
+}
