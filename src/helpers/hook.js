@@ -1,6 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { get } from "./api_helper";
-import { GET_UPLOAD_CONFIG, CONTAINER, USER, CAMERA } from "./url_helper";
+import {
+  GET_UPLOAD_CONFIG,
+  CONTAINER,
+  USER,
+  CAMERA,
+  CAMERA_GROUP,
+} from "./url_helper";
 
 export function useUploadConfig() {
   const [state, setState] = useState({});
@@ -57,6 +63,26 @@ export const useUser = id => {
   return [data, loading, fetchData];
 };
 
+export const useCameraGroup = id => {
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState();
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+
+    const { data } = await get(`${CAMERA_GROUP}/${id}`);
+
+    setData(data);
+    setLoading(false);
+  }, [id]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  return [data, loading, fetchData];
+};
+
 export const useCamera = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState();
@@ -64,7 +90,7 @@ export const useCamera = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
 
-    const { data } = await get(`${CAMERA}`);
+    const { data } = await get(`${CAMERA}/group`);
 
     setData(data);
     setLoading(false);

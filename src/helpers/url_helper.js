@@ -11,3 +11,4 @@ export const CONTAINER = "/container";
 export const DEPARTMENT = "/department";
 export const USER = "/user";
 export const CAMERA = "/camera";
+export const CAMERA_GROUP = "/camera/group";

@@ -5,6 +5,7 @@ import accessToken from "./jwt-token-access/accessToken";
 export const API_URL = `http://localhost:3030/api`;
 export const WS_URL = `http://localhost:3030`;
 // export const API_URL = `/api`;
+// export const WS_URL = ``;
 
 const axiosApi = axios.create({
   baseURL: API_URL,

@@ -5,3 +5,4 @@ export * from "./department/actions"
 
 // Authentication module
 export * from "./auth/login/actions"
+export * from "./camera/actions"

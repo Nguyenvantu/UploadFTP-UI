@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Row, Input, Button, Col } from "reactstrap";
+import { useSelector, useDispatch } from "react-redux";
+import { Row, Input, Button, Col, Modal, ModalHeader } from "reactstrap";
 import * as FileSaver from "file-saver";
 import { useHistory } from "react-router-dom";
 import moment from "moment";
@@ -22,8 +23,9 @@ import {
   WS_URL,
 } from "../../helpers/api_helper";
 import { CONTAINER } from "../../helpers/url_helper";
-import { useUploadConfig, useCamera } from "../../helpers/hook";
+import { useUploadConfig } from "../../helpers/hook";
 import PictureList from "./PictureList";
+import { getCameraGroups } from "../../store/actions";
 
 const CODE_LENGTH = 11;
 
@@ -35,7 +37,7 @@ const UploadPicture = () => {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [pictures, setPictures] = useState([]);
-  const [selectedCamera, setCamera] = useState(0);
+  const [selectedCamera, setCamera] = useState(null);
   const [isCamView, setIsCamView] = useState(false);
   const config = useUploadConfig();
 
@@ -49,28 +51,22 @@ const UploadPicture = () => {
     if (!isCamView) {
       return setIsCamView(true);
     }
-    const doc = document.querySelector("#camera-view");
-    if (doc && doc.src) {
-      const fileName = `${code}-${moment().format("MMDDHHmmss")}-${to2num(
-        pictures.length + 1
-      )}.jpg`;
-      // const base64Str = doc.src.replace("data:image/jpeg;base64,");
 
-      // const newFile = new File(
-      //   [Uint8Array.from(atob(base64Str), m => m.codePointAt(0))],
-      //   fileName,
-      //   { type: "image/jpeg" }
-      // );
+    const docs = document.querySelectorAll('img[name="camera-view"]');
+    if (!docs.length) return;
+
+    const newFiles = [];
+
+    docs.forEach((doc, i) => {
+      const fileName = `${code}-${moment().format("MMDDHHmmss")}-${to2num(
+        pictures.length + 1 + i
+      )}.jpg`;
 
       const newFile = base64ToFile(doc.src, fileName);
+      newFiles.push(newFile);
+    });
 
-      // const newFile = new File(
-      //   Buffer.from(doc.src.replace("data:image/jpeg;base64,"), "base64"),
-      //   fileName
-      // );
-
-      setPictures(prevFiles => [...prevFiles, newFile]);
-    }
+    setPictures(prevFiles => [...prevFiles, ...newFiles]);
   };
 
   const onRemove = useCallback(file => {
@@ -175,7 +171,7 @@ const UploadPicture = () => {
   };
 
   const onCameraChange = e => {
-    setCamera(parseInt(e.target.value));
+    setCamera(e);
     setIsCamView(true);
   };
 
@@ -194,7 +190,7 @@ const UploadPicture = () => {
               <h5 className="w-100 text-center">Đang tải ảnh, vui lòng chờ!</h5>
             )}
             {isCamView && selectedCamera ? (
-              <CameraView id={selectedCamera} setLoading={setLoading} />
+              <Cameras data={selectedCamera} setLoading={setLoading} />
             ) : (
               <PictureList items={pictures} onRemove={onRemove} />
             )}
@@ -284,11 +280,46 @@ const UploadPicture = () => {
   );
 };
 
-function CameraView({ id, setLoading }) {
+function Cameras({ data, setLoading }) {
+  const [selected, setSelected] = useState();
+
+  if (!data || !data.cameras.length) {
+    return;
+  }
+
+  if (data.cameras.length === 1) {
+    return <CameraView id={data.cameras[0].id} setLoading={setLoading} />;
+  }
+
+  return (
+    <Row className="w-100 mx-0">
+      {_.map(data.cameras, cam => (
+        <Col
+          xs="6"
+          sm="6"
+          key={cam.id}
+          className="px-0"
+          onClick={() => {
+            setSelected(cam.id);
+          }}
+        >
+          <CameraView
+            id={cam.id}
+            selected={selected === cam.id}
+            setSelected={setSelected}
+            style={{ maxWidth: "100%" }}
+            setLoading={setLoading}
+          />
+        </Col>
+      ))}
+    </Row>
+  );
+}
+
+function CameraView({ id, setLoading, selected, setSelected }) {
   const [src, setSrc] = useState("");
 
   useEffect(() => {
-    console.log(WS_URL);
     const socket = io(`${WS_URL}/camera?id=${id}`);
 
     socket.on("data", function (data) {
@@ -306,24 +337,50 @@ function CameraView({ id, setLoading }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
-  return (
-    <div className="h-100 w-100 text-center">
-      <img
-        alt=""
-        id="camera-view"
-        //   src={`${API_URL}${CAMERA}/${id}/view`}
-        src={src}
-        style={{ maxWidth: "100%" }}
-      />
-    </div>
+  const img = (
+    <img alt="" name="camera-view" src={src} style={{ maxWidth: "100%" }} />
   );
+
+  if (selected) {
+    const toggle = () => {
+      console.log("toggle");
+      setSelected();
+    };
+
+    return (
+      <Modal isOpen={true} toggle={toggle} centered>
+        <ModalHeader toggle={toggle}></ModalHeader>
+        {img}
+      </Modal>
+    );
+  }
+
+  return <div className="w-100 text-center">{img}</div>;
 }
 
-function CameraSelect(props) {
-  const [data] = useCamera();
+function CameraSelect({ value, onChange }) {
+  const data = useSelector(state => state.CameraGroup.data);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (!data.length) {
+      dispatch(getCameraGroups());
+    }
+  }, [dispatch, data]);
+
+  const onSelectChange = e => {
+    const selected = parseInt(e.target.value);
+
+    const currentValue = _.find(data, i => i.id === selected);
+    onChange(currentValue);
+  };
 
   return (
-    <select className="form-control" {...props}>
+    <select
+      className="form-control"
+      value={value ? value.id : 0}
+      onChange={onSelectChange}
+    >
       <option key={0} value={0}>
         -- Chọn Camera --
       </option>

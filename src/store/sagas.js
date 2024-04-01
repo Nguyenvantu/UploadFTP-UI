@@ -8,6 +8,7 @@ import LayoutSaga from "./layout/saga";
 import ContainerSaga from "./container/saga";
 import UserSaga from "./user/saga";
 import DepartmentSaga from "./department/saga";
+import CamSaga from "./camera/saga";
 
 export default function* rootSaga() {
   yield all([
@@ -17,5 +18,6 @@ export default function* rootSaga() {
     fork(ContainerSaga),
     fork(UserSaga),
     fork(DepartmentSaga),
+    fork(CamSaga),
   ]);
 }

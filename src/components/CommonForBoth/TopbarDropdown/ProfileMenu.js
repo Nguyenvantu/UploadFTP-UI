@@ -61,6 +61,14 @@ const ProfileMenu = () => {
           )}
           {user.role === "ADMIN" && (
             <DropdownItem>
+              <Link to={"/manage/group"} className="d-flex align-items-center">
+                <i className="fas fa-camera font-size-16 me-2"></i>{" "}
+                <span>Quản lý camera</span>
+              </Link>
+            </DropdownItem>
+          )}
+          {user.role === "ADMIN" && (
+            <DropdownItem>
               <Link to={"/deleteData"} className="d-flex align-items-center">
                 <i className="fas fa-database font-size-16 me-2"></i>{" "}
                 <span>Xoá dữ liệu</span>

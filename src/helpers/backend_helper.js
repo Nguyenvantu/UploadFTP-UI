@@ -30,6 +30,8 @@ const getUsers = configs => get(url.USER, configs);
 
 const getDepartments = configs => get(url.DEPARTMENT, configs);
 
+const getCameraGroups = configs => get(url.CAMERA_GROUP, configs);
+
 export {
   getLoggedInUser,
   isUserAuthenticated,
@@ -39,4 +41,5 @@ export {
   getContainers,
   getUsers,
   getDepartments,
+  getCameraGroups,
 };

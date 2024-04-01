@@ -7,6 +7,9 @@ import Container from "../pages/Container/ContainerDetail";
 import UserList from "../pages/User/List";
 import User from "../pages/User/Detail";
 import DeleteData from "../pages/DeleteData";
+import GroupList from "../pages/Camera/GroupList";
+import GroupDetail from "../pages/Camera/GroupDetail";
+import CameraDetail from "../pages/Camera/CameraDetail";
 
 const userRoutes = [
   { path: "/container", exact: true, component: ContainerList },
@@ -17,6 +20,9 @@ const userRoutes = [
   { path: "/v1", component: UploadPicture },
   { path: "/", component: UploadPicture2 },
   { path: "/camera", component: Camera },
+  { path: "/manage/group", component: GroupList },
+  { path: "/manage/group/:id", component: GroupDetail },
+  { path: "/manage/camera/:id", component: CameraDetail },
 ];
 
 const authRoutes = [{ path: "/login", component: Login }];
