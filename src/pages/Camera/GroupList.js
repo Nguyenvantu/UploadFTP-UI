@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
   Table,
-  // FormGroup,
+  Button,
   Spinner,
   // Label,
   Pagination,
@@ -35,7 +35,12 @@ const ContainerList = () => {
     <div className="page-content p-0">
       <div className="main-layout">
         <div>
-          <h5 className="mb-3">Danh sách nhóm Camera</h5>
+          <div className="d-flex align-items-center justify-content-between mb-3">
+            <h5 className="mb-3">Danh sách nhóm Camera</h5>
+            <Link to={`/manage/group/create`}>
+              <Button>Tạo mới</Button>
+            </Link>
+          </div>
           {cameraGroup.loading ? (
             <div className="text-center mt-2">
               <Spinner />

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { Spinner } from "reactstrap";
 import { AvForm, AvField } from "availity-reactstrap-validation";
 import toastr from "toastr";
@@ -9,6 +9,7 @@ import { getDepartments } from "../../store/actions";
 import { useCameraGroup } from "../../helpers/hook";
 import { post, put, del } from "../../helpers/api_helper";
 import { CAMERA_GROUP } from "../../helpers/url_helper";
+import CameraList from "./CameraList";
 
 const CameraGroup = ({ match }) => {
   const id = match.params.id;
@@ -51,7 +52,9 @@ function GroupForm({ isCreate, defaultValues }) {
         const data = await post(CAMERA_GROUP, values);
         if (data.success) {
           toastr.success("Lưu thành công!");
-          history.replace(`/user`);
+          history.replace(
+            window.location.pathname.replace("create", data.data.id)
+          );
         } else {
           toastr.success(data.message || "Có lỗi xảy ra!");
         }
@@ -97,7 +100,10 @@ function GroupForm({ isCreate, defaultValues }) {
       <div className="main-layout">
         <div className="d-flex align-items-center justify-content-between mb-3">
           <h5>{isCreate ? "Tạo nhóm mới" : `Cập nhật thông tin nhóm`}</h5>
-          <button className="btn btn-danger waves-effect waves-light mr-2">
+          <button
+            className="btn btn-danger waves-effect waves-light mr-2"
+            onClick={onDel}
+          >
             Xoá
           </button>
         </div>
@@ -143,6 +149,14 @@ function GroupForm({ isCreate, defaultValues }) {
             </button>
           </div>
         </AvForm>
+        {!!defaultValues && !!defaultValues.id && (
+          <div className="mt-3">
+            <CameraList
+              cameras={defaultValues.cameras}
+              groupId={defaultValues.id}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

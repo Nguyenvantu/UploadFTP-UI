@@ -55,16 +55,19 @@ const UploadPicture = () => {
     const docs = document.querySelectorAll('img[name="camera-view"]');
     if (!docs.length) return;
 
-    const newFiles = [];
+    const newFiles = await Promise.all(
+      docs.map((doc, i) => {
+        const fileName = `${code}-${moment().format("MMDDHHmmss")}-${to2num(
+          pictures.length + 1 + i
+        )}.jpg`;
 
-    docs.forEach((doc, i) => {
-      const fileName = `${code}-${moment().format("MMDDHHmmss")}-${to2num(
-        pictures.length + 1 + i
-      )}.jpg`;
+        const newFile = base64ToFile(doc.src, fileName);
 
-      const newFile = base64ToFile(doc.src, fileName);
-      newFiles.push(newFile);
-    });
+        return drawImageText(newFile, config, fileName);
+
+        // newFiles.push(newFile);
+      })
+    );
 
     setPictures(prevFiles => [...prevFiles, ...newFiles]);
   };

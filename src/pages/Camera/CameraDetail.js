@@ -1,67 +1,37 @@
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { useHistory } from "react-router-dom";
-import { Spinner } from "reactstrap";
+// import { useEffect } from "react";
+// import { useDispatch, useSelector } from "react-redux";
+// import { useHistory } from "react-router-dom";
+// import { Spinner } from "reactstrap";
 import { AvForm, AvField } from "availity-reactstrap-validation";
 import toastr from "toastr";
 
-import { getDepartments } from "../../store/actions";
-import { useUser } from "../../helpers/hook";
 import { post, put } from "../../helpers/api_helper";
-import { CAMERA_GROUP } from "../../helpers/url_helper";
+import { CAMERA } from "../../helpers/url_helper";
 
-const CameraGroup = ({ match }) => {
-  const id = match.params.id;
-
-  const isCreate = id === "create";
-
-  if (isCreate) return <CreateGroup />;
-  return <DetailGroup id={id} />;
-};
-
-function DetailGroup({ id }) {
-  const [data, loading] = useUser(id);
-
-  return data && data.id ? (
-    <GroupForm defaultValues={data} />
-  ) : (
-    <Spinner loading={loading} />
-  );
-}
-
-function CreateGroup() {
-  return <GroupForm isCreate />;
-}
-
-function GroupForm({ isCreate, defaultValues }) {
-  const history = useHistory();
-
-  const dispatch = useDispatch();
-  const departments = useSelector(state => state.Department.data);
-
-  useEffect(() => {
-    dispatch(getDepartments());
-  }, [dispatch]);
+function CameraForm({ data, groupId, toggleModal }) {
+  const isCreate = !data.id;
 
   const onValidSubmit = async (e, values) => {
     e.preventDefault();
     try {
+      values.groupId = groupId;
+
       if (isCreate) {
-        const data = await post(CAMERA_GROUP, values);
+        const data = await post(CAMERA, values);
         if (data.success) {
           toastr.success("Lưu thành công!");
-          history.push(`/user`);
         } else {
           toastr.success(data.message || "Có lỗi xảy ra!");
         }
         return;
       }
 
-      const data = await put(`${CAMERA_GROUP}/${defaultValues.id}`, values);
-      if (data.success) {
+      const rs = await put(`${CAMERA}/${data.id}`, values);
+      if (rs.success) {
         toastr.success("Lưu thành công!");
+        toggleModal();
       } else {
-        toastr.success(data.message || "Có lỗi xảy ra!");
+        toastr.success(rs.message || "Có lỗi xảy ra!");
       }
     } catch (e) {
       toastr.error("Có lỗi xảy ra!");
@@ -69,7 +39,7 @@ function GroupForm({ isCreate, defaultValues }) {
   };
 
   return (
-    <div className="page-content p-0">
+    <div>
       <div className="main-layout">
         <div>
           <h5 className="mb-3">
@@ -79,35 +49,55 @@ function GroupForm({ isCreate, defaultValues }) {
         <AvForm
           className="form-horizontal"
           onValidSubmit={onValidSubmit}
-          model={defaultValues}
-          // onInvalidSubmit={onInvalidSubmit}
+          model={data}
         >
-          {/* {error && <Alert color="danger">{error}</Alert>} */}
           <div className="mb-3">
             <AvField
               name="name"
-              label="Tên nhóm"
+              label="Tên camera"
               value=""
-              disabled={!isCreate}
               className="form-control"
-              placeholder="Nhập tên người dùng"
+              placeholder="Nhập tên"
               required
             />
           </div>
           <div className="mb-3">
             <AvField
-              type="select"
-              name="departmentId"
-              label="Nhóm"
+              name="url"
+              label="Url"
+              value=""
+              className="form-control"
+              placeholder="Nhập Url"
               required
-              // helpMessage="Idk, this is an example. Deal with it!"
-            >
-              {departments.map(de => (
-                <option key={de.id} value={de.id}>
-                  {de.name}
-                </option>
-              ))}
-            </AvField>
+            />
+          </div>
+          <div className="mb-3">
+            <AvField
+              name="port"
+              label="Cổng"
+              value=""
+              className="form-control"
+              placeholder="Nhập cổng"
+              required
+            />
+          </div>
+          <div className="mb-3">
+            <AvField
+              name="username"
+              label="Username"
+              value=""
+              className="form-control"
+              placeholder="Nhập username"
+            />
+          </div>
+          <div className="mb-3">
+            <AvField
+              name="password"
+              label="Password"
+              value=""
+              className="form-control"
+              placeholder="Nhập password"
+            />
           </div>
           <div className="mt-3">
             <button
@@ -123,4 +113,4 @@ function GroupForm({ isCreate, defaultValues }) {
   );
 }
 
-export default CameraGroup;
+export default CameraForm;
