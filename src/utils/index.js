@@ -56,7 +56,7 @@ export const drawImageText = (file, config, fileName) => {
           resolve(newFile);
         },
         "image/jpeg",
-        0.8
+        config.quality || 0.85
       );
     };
     img.onerror = reject;

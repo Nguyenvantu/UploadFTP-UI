@@ -55,13 +55,18 @@ const UploadPicture = () => {
     const docs = document.querySelectorAll('img[name="camera-view"]');
     if (!docs.length) return;
 
+    const imgs = [];
+    docs.forEach(doc => {
+      imgs.push(doc.src);
+    });
+
     const newFiles = await Promise.all(
-      docs.map((doc, i) => {
+      imgs.map((src, i) => {
         const fileName = `${code}-${moment().format("MMDDHHmmss")}-${to2num(
           pictures.length + 1 + i
         )}.jpg`;
 
-        const newFile = base64ToFile(doc.src, fileName);
+        const newFile = base64ToFile(src, fileName);
 
         return drawImageText(newFile, config, fileName);
 
@@ -287,7 +292,7 @@ function Cameras({ data, setLoading }) {
   const [selected, setSelected] = useState();
 
   if (!data || !data.cameras.length) {
-    return;
+    return <h5 className="text-center">Danh sách camera trống!</h5>;
   }
 
   if (data.cameras.length === 1) {

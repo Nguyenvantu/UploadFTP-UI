@@ -8,7 +8,7 @@ import toastr from "toastr";
 import { post, put } from "../../helpers/api_helper";
 import { CAMERA } from "../../helpers/url_helper";
 
-function CameraForm({ data, groupId, toggleModal }) {
+function CameraForm({ data, groupId, toggleModal, fetchData }) {
   const isCreate = !data.id;
 
   const onValidSubmit = async (e, values) => {
@@ -16,20 +16,14 @@ function CameraForm({ data, groupId, toggleModal }) {
     try {
       values.groupId = groupId;
 
-      if (isCreate) {
-        const data = await post(CAMERA, values);
-        if (data.success) {
-          toastr.success("Lưu thành công!");
-        } else {
-          toastr.success(data.message || "Có lỗi xảy ra!");
-        }
-        return;
-      }
+      const rs = isCreate
+        ? await post(CAMERA, values)
+        : await put(`${CAMERA}/${data.id}`, values);
 
-      const rs = await put(`${CAMERA}/${data.id}`, values);
       if (rs.success) {
         toastr.success("Lưu thành công!");
         toggleModal();
+        fetchData();
       } else {
         toastr.success(rs.message || "Có lỗi xảy ra!");
       }
@@ -40,28 +34,29 @@ function CameraForm({ data, groupId, toggleModal }) {
 
   return (
     <div>
-      <div className="main-layout">
-        <div>
-          <h5 className="mb-3">
-            {isCreate ? "Tạo nhóm mới" : `Cập nhật thông tin nhóm`}
-          </h5>
-        </div>
+      <div>
+        {/* <div className="d-flex align-items-center justify-content-between mb-3">
+          <h5>{isCreate ? "Tạo nhóm mới" : `Cập nhật thông tin nhóm`}</h5>
+          <span>
+            <i className=""></i>
+          </span>
+        </div> */}
         <AvForm
           className="form-horizontal"
           onValidSubmit={onValidSubmit}
           model={data}
         >
-          <div className="mb-3">
+          <div className="mb-2">
             <AvField
               name="name"
-              label="Tên camera"
+              label="Tên"
               value=""
               className="form-control"
               placeholder="Nhập tên"
               required
             />
           </div>
-          <div className="mb-3">
+          <div className="mb-2">
             <AvField
               name="url"
               label="Url"
@@ -71,7 +66,7 @@ function CameraForm({ data, groupId, toggleModal }) {
               required
             />
           </div>
-          <div className="mb-3">
+          <div className="mb-2">
             <AvField
               name="port"
               label="Cổng"
@@ -81,7 +76,7 @@ function CameraForm({ data, groupId, toggleModal }) {
               required
             />
           </div>
-          <div className="mb-3">
+          <div className="mb-2">
             <AvField
               name="username"
               label="Username"
@@ -90,7 +85,7 @@ function CameraForm({ data, groupId, toggleModal }) {
               placeholder="Nhập username"
             />
           </div>
-          <div className="mb-3">
+          <div className="mb-2">
             <AvField
               name="password"
               label="Password"
@@ -99,7 +94,7 @@ function CameraForm({ data, groupId, toggleModal }) {
               placeholder="Nhập password"
             />
           </div>
-          <div className="mt-3">
+          <div className="mt-3 d-flex align-items-center justify-content-between gap-10">
             <button
               className="btn btn-primary w-100 waves-effect waves-light"
               type="submit"

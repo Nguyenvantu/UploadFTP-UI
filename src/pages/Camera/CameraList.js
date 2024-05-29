@@ -5,8 +5,8 @@ import {
   Table,
   Button,
   Modal,
-  // ModalHeader,
-  // ModalBody,
+  ModalHeader,
+  ModalBody,
   // FormGroup,
   // Spinner,
   // Label,
@@ -14,13 +14,16 @@ import {
   // PaginationItem,
   // PaginationLink,
 } from "reactstrap";
-import moment from "moment";
+// import moment from "moment";
 // import queryString from "query-string";
 import _ from "lodash";
+import toastr from "toastr";
 
 import Form from "./CameraDetail";
+import { del } from "../../helpers/api_helper";
+import { CAMERA } from "../../helpers/url_helper";
 
-const CamList = ({ groupId, cameras }) => {
+const CamList = ({ groupId, cameras, fetchData }) => {
   const [open, setOpen] = useState(false);
   const [data, setData] = useState({});
 
@@ -38,14 +41,42 @@ const CamList = ({ groupId, cameras }) => {
     setOpen(o => !o);
   };
 
+  const onDelete = cam => async e => {
+    e.stopPropagation();
+
+    const ok = window.confirm(`Xác nhận xoá camera này ?`);
+    if (ok) {
+      try {
+        const data = await del(`${CAMERA}/${cam.id}`);
+
+        if (data.success) {
+          toastr.success("Xoá dữ liệu thành công!");
+          fetchData();
+        } else {
+          toastr.error(data.message || "Có lỗi xảy ra!");
+        }
+      } catch (e) {
+        console.error(e);
+        toastr.error("Có lỗi xảy ra vui lòng thử lại sau!");
+      }
+    }
+  };
+
   return (
     <div>
       {open && (
         <Modal isOpen={true} toggle={toggleModal} centered>
-          {/* <ModalHeader toggle={toggle}></ModalHeader> */}
-          {/* <ModalBody> */}
-          <Form data={data} groupId={groupId} toggleModal={toggleModal} />
-          {/* </ModalBody> */}
+          <ModalHeader toggle={toggleModal}>
+            <h5>{!data.id ? "Tạo nhóm mới" : `Cập nhật thông tin nhóm`}</h5>
+          </ModalHeader>
+          <ModalBody>
+            <Form
+              data={data}
+              groupId={groupId}
+              toggleModal={toggleModal}
+              fetchData={fetchData}
+            />
+          </ModalBody>
         </Modal>
       )}
       {/*  */}
@@ -57,10 +88,10 @@ const CamList = ({ groupId, cameras }) => {
         <Table>
           <thead>
             <tr>
-              <th>#</th>
-              <th>Tên cam</th>
+              <th>STT</th>
+              <th>Tên</th>
               <th>Url</th>
-              <th>Ngày tạo</th>
+              <th>#</th>
             </tr>
           </thead>
           <tbody>
@@ -72,7 +103,12 @@ const CamList = ({ groupId, cameras }) => {
                   <td>
                     {c.url}:{c.port}
                   </td>
-                  <td>{moment(c.created_at).format("DD/MM/YYYY HH:mm")}</td>
+                  {/* <td>{moment(c.created_at).format("DD/MM/YYYY HH:mm")}</td> */}
+                  <td>
+                    <span style={{ color: "#ff715b" }} onClick={onDelete(c)}>
+                      Xoá
+                    </span>
+                  </td>
                 </tr>
               );
             })}

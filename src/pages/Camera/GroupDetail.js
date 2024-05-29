@@ -21,10 +21,10 @@ const CameraGroup = ({ match }) => {
 };
 
 function DetailGroup({ id }) {
-  const [data, loading] = useCameraGroup(id);
+  const [data, loading, fetchData] = useCameraGroup(id);
 
   return data && data.id ? (
-    <GroupForm defaultValues={data} />
+    <GroupForm defaultValues={data} fetchData={fetchData} />
   ) : (
     <Spinner loading={loading} />
   );
@@ -34,7 +34,7 @@ function CreateGroup() {
   return <GroupForm isCreate />;
 }
 
-function GroupForm({ isCreate, defaultValues }) {
+function GroupForm({ isCreate, defaultValues, fetchData }) {
   const [loading, setLoading] = useState(false);
 
   const history = useHistory();
@@ -84,7 +84,7 @@ function GroupForm({ isCreate, defaultValues }) {
 
         if (data.success) {
           toastr.success("Xoá dữ liệu thành công!");
-          history.goback();
+          history.goBack();
         } else {
           toastr.error(data.message || "Có lỗi xảy ra!");
         }
@@ -113,13 +113,11 @@ function GroupForm({ isCreate, defaultValues }) {
           model={defaultValues}
           // onInvalidSubmit={onInvalidSubmit}
         >
-          {/* {error && <Alert color="danger">{error}</Alert>} */}
           <div className="mb-3">
             <AvField
               name="name"
               label="Tên nhóm"
               value=""
-              //   disabled={!isCreate}
               className="form-control"
               placeholder="Nhập tên người dùng"
               required
@@ -130,6 +128,7 @@ function GroupForm({ isCreate, defaultValues }) {
               type="select"
               name="departmentId"
               label="Nhóm"
+              value=""
               required
               // helpMessage="Idk, this is an example. Deal with it!"
             >
@@ -154,6 +153,7 @@ function GroupForm({ isCreate, defaultValues }) {
             <CameraList
               cameras={defaultValues.cameras}
               groupId={defaultValues.id}
+              fetchData={fetchData}
             />
           </div>
         )}
