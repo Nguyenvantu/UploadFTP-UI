@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { call, put, takeLatest } from "redux-saga/effects";
 
 import { FETCH_CONTAINER, FETCH_CONTAINER_SUCCESS } from "./actionTypes";

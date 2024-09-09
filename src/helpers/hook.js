@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import _ from "lodash";
+
 import { get } from "./api_helper";
 import {
   GET_UPLOAD_CONFIG,
@@ -31,6 +33,8 @@ export const useContainer = id => {
     setLoading(true);
 
     const { data } = await get(`${CONTAINER}/${id}`);
+
+    data.files = _.sortBy(data.files, ["name"], ["asc"]);
 
     setData(data);
     setLoading(false);

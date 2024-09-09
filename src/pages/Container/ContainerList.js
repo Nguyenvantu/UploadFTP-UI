@@ -12,7 +12,6 @@ import {
 } from "reactstrap";
 import moment from "moment";
 import queryString from "query-string";
-import _ from "lodash";
 
 import { getContainers } from "../../store/actions";
 import DatePicker from "../../components/Common/DatePicker";
