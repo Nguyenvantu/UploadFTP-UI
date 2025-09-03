@@ -9,7 +9,7 @@
     "availity-reactstrap-validation": "^2.7.0",
     "axios": "^0.21.1",
     "axios-mock-adapter": "^1.19.0",
-    "bootstrap": "^5.0.0-beta2",
+    "bootstrap": "^5.3.0",
     "browser-image-compression": "^2.0.0",
     "container-validator": "^1.1.0",
     "file-saver": "^2.0.5",
@@ -62,8 +62,8 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
+    "build": "set NODE_OPTIONS=--openssl-legacy-provider && react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -86,6 +86,6 @@
     ]
   },
   "devDependencies": {
-    "node-sass": "^5.0.0"
+    "sass": "^1.69.0"
   }
 }

@@ -12,14 +12,20 @@ import { useUploadConfig } from "../../helpers/hook";
 import PictureList from "./PictureList";
 
 const CODE_LENGTH = 11;
+const SIZE_LENGTH = 2;
+const TYPE_LENGTH = 2;
+const CACHE = new Map();
 
 const UploadPicture = () => {
   const captureRef = useRef();
   const uploadRef = useRef();
 
   const [code, setCode] = useState("");
+  // const [size, setSize] = useState("");
+  // const [type, setType] = useState("");
   const [saving, setSaving] = useState(false);
   const [pictures, setPictures] = useState([]);
+  const [detecting, setDetecting] = useState(false);
   const config = useUploadConfig();
 
   const onTakePicture = () => {
@@ -40,11 +46,29 @@ const UploadPicture = () => {
   };
 
   const saveServer = async () => {
+    if (!code) {
+      toastr.error("Vui lòng nhập Container ID!");
+      return;
+    }
+
+    const isISO = checkISOContainer(code);
+    if (!isISO) {
+      const ok = window.confirm(
+        "ISO container chưa đúng. Bạn có muốn tiếp tục?"
+      );
+      if (!ok) {
+        return;
+      }
+    }
+
     setSaving(true);
+
     const errors = [];
 
     const container = await post(`${CONTAINER}`, {
       id: code,
+      // size,
+      // type,
     })
       .then(res => res.data)
       .catch(() => null);
@@ -93,6 +117,57 @@ const UploadPicture = () => {
     }
   };
 
+  const detectCode = async pic => {
+    if (CACHE.has(pic)) {
+      const data = CACHE.get(pic);
+
+      if (data && data.data && data.data.code) {
+        setCode(data.data.code);
+      }
+
+      return;
+    }
+
+    try {
+      setDetecting(true);
+
+      const form = new FormData();
+
+      form.append("file", pic, pic.name);
+
+      const data = await postFromData("/upload/detect", form, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      CACHE.set(pic, data);
+
+      if (data.success) {
+        const { size, type, code } = data.data;
+        // setSize(size);
+        // setType(type);
+        setCode(code);
+
+        // if (code) {
+        //   const isISO = checkISOContainer(code);
+        //   if (!isISO) {
+        //     const ok = window.confirm(
+        //       "ISO container chưa đúng. Bạn có muốn tiếp tục?"
+        //     );
+        //     if (!ok) {
+        //       setCode("");
+        //     }
+        //   }
+        // }
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDetecting(false);
+    }
+  };
+
   const uploadPicture = async e => {
     e.preventDefault();
 
@@ -104,7 +179,13 @@ const UploadPicture = () => {
       newFiles.map(file => drawImageText(file, config))
     );
 
-    setPictures(prevFiles => [...prevFiles, ...compressedFiles]);
+    const pics = [...pictures, ...compressedFiles];
+
+    setPictures(pics);
+
+    if (!code) {
+      detectCode(pics[0]);
+    }
 
     e.target.value = "";
   };
@@ -112,6 +193,7 @@ const UploadPicture = () => {
   const onCodeChange = e => {
     const value = (e.target.value || "").toUpperCase().trim();
     if (value && value.length > CODE_LENGTH) return;
+
     setCode(value);
 
     if (value.length === CODE_LENGTH) {
@@ -127,7 +209,19 @@ const UploadPicture = () => {
     }
   };
 
-  const isValidCode = code.length === CODE_LENGTH;
+  // const onSizeChange = e => {
+  //   const value = (e.target.value || "").toUpperCase().trim();
+  //   if (value && value.length > SIZE_LENGTH) return;
+  //   setSize(value);
+  // };
+
+  // const onTypeChange = e => {
+  //   const value = (e.target.value || "").toUpperCase().trim();
+  //   if (value && value.length > TYPE_LENGTH) return;
+  //   setType(value);
+  // };
+
+  // const disabled = !!code && code.length !== CODE_LENGTH;
 
   return (
     <>
@@ -142,19 +236,59 @@ const UploadPicture = () => {
         </div>
         <div className="box-control">
           <div className="box-input mb-2">
-            <Input
-              placeholder="CONTAINER ID"
-              value={code}
-              onChange={onCodeChange}
-            />
+            <div style={{ position: "relative" }}>
+              <Input
+                placeholder="CONTAINER ID"
+                value={code}
+                onChange={onCodeChange}
+                disabled={detecting}
+                style={{
+                  paddingRight: detecting ? "40px" : undefined,
+                  opacity: detecting ? 0.7 : 1,
+                }}
+              />
+              {detecting && (
+                <div
+                  style={{
+                    position: "absolute",
+                    right: "10px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    color: "#007bff",
+                  }}
+                >
+                  <i className="fa fa-spinner fa-spin"></i>
+                </div>
+              )}
+            </div>
             <Button
               className="btn-danger"
               onClick={onTakePicture}
-              disabled={!isValidCode}
+              // disabled={disabled}
             >
               <i className="fa fa-camera"></i> Chụp
             </Button>
           </div>
+          {/* <div className="box-input mb-2">
+            <Row className="gx-1">
+              <Col>
+                <Input
+                  placeholder="SIZE"
+                  value={size}
+                  onChange={onSizeChange}
+                  maxLength={SIZE_LENGTH}
+                />
+              </Col>
+              <Col>
+                <Input
+                  placeholder="TYPE"
+                  value={type}
+                  onChange={onTypeChange}
+                  maxLength={TYPE_LENGTH}
+                />
+              </Col>
+            </Row>
+          </div> */}
           <div>
             <Row className="gx-1">
               <Col className="pr-1">

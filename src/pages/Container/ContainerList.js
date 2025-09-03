@@ -83,7 +83,11 @@ const ContainerList = ({ location }) => {
                       <tr key={c.id}>
                         <th scope="row">{(page - 1) * 10 + i + 1}</th>
                         <td>
-                          <Link to={`/container/${c.id}`}>{c.container}</Link>
+                          <Link to={`/container/${c.id}`}>
+                            {`${c.container}${
+                              c.size ? ` - ${c.size}${c.type || ""}` : ""
+                            }`}
+                          </Link>
                         </td>
                         <td>{c.totalFiles}</td>
                         <td>

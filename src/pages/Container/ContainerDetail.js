@@ -120,7 +120,18 @@ const ContainerDetail = ({ match }) => {
             <div>
               <div className="mb-2">
                 <h5 className="mb-1">
-                  Container ID: <b>{_.get(data, "container", "")}</b>
+                  Container ID:{" "}
+                  <b>
+                    {`${_.get(data, "container", "")}${
+                      _.get(data, "size", "")
+                        ? ` - ${_.get(data, "size", "")}${_.get(
+                            data,
+                            "type",
+                            ""
+                          )}`
+                        : ""
+                    }`}
+                  </b>
                 </h5>
                 <div>Số lượng ảnh: {_.get(data, "files.length", "")}</div>
               </div>
